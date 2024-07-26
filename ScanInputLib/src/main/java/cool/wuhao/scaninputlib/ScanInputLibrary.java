@@ -1,6 +1,5 @@
 package cool.wuhao.scaninputlib;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
@@ -12,6 +11,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -41,7 +41,7 @@ public class ScanInputLibrary {
     }
 
     // Method to get QR code image
-    public Bitmap generateQrCode(Context context, String data) {
+    public Bitmap generateQrCode(String data) {
         BitMatrix bitMatrix;
         try {
             bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, 200, 200);
@@ -60,7 +60,7 @@ public class ScanInputLibrary {
     }
 
 
-    public void startServer(Context context, int webPort, int wsPort, InputCallback callback) {
+    public void startServer(int webPort, int wsPort, InputCallback callback) {
         this.inputCallback = callback;
         webServer = new SimpleWebServer(webPort);
         webSocketServer = new WebSocketServer(wsPort);
@@ -71,27 +71,65 @@ public class ScanInputLibrary {
         try {
             webServer.start();
             webSocketServer.start();
+            System.out.println("Servers started successfully");
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Failed to start servers");
         }
     }
 
     // 获取本地 IP 地址
+//    public String getLocalIpAddress() {
+//        try {
+//            // Iterate through all network interfaces
+//            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+//                NetworkInterface networkInterface = en.nextElement();
+//                // Iterate through all IP addresses associated with the network interface
+//                for (Enumeration<InetAddress> enumIpAddr = networkInterface.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+//                    InetAddress inetAddress = enumIpAddr.nextElement();
+//                    // Check if the address is an IPv4 address, not a loopback address, and is a site-local address
+//                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
+//                        return inetAddress.getHostAddress();
+//                    }
+//                }
+//            }
+//        } catch (SocketException ex) {
+//            ex.printStackTrace();
+//        }
+//        return "Cannot get IP address!";
+//    }
     public String getLocalIpAddress() {
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
-                        return inetAddress.getHostAddress();
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            if (networkInterfaces == null) {
+                System.out.println("No network interfaces found");
+                return "Cannot get IP address!";
+            }
+
+            while (networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+                if (inetAddresses == null) {
+                    System.out.println("No IP addresses found for network interface: " + networkInterface.getName());
+                    continue;
+                }
+
+                while (inetAddresses.hasMoreElements()) {
+                    InetAddress inetAddress = inetAddresses.nextElement();
+                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
+                        String ipAddress = inetAddress.getHostAddress();
+                        System.out.println("Local IP Address: " + ipAddress);
+                        return ipAddress;
                     }
                 }
             }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
+        } catch (SocketException e) {
+            e.printStackTrace();
+            System.out.println("SocketException occurred while getting IP address");
         }
-        return "Can not get ip address!"; // 默认值
+
+        System.out.println("Cannot get IP address!");
+        return "Cannot get IP address!";
     }
 
     // Method to stop the server
@@ -112,8 +150,11 @@ public class ScanInputLibrary {
 
         @Override
         public Response serve(IHTTPSession session) {
-            String html = "<html><body><input type='text' id='inputField' oninput='sendData()'>" +
-                    "<script>function sendData() {" +
+            String html = "<html><body>" +
+                    "<p>Scan Input Test</p>" +
+                    "<input type='text' id='inputField' oninput='sendData()'>" +
+                    "<script>" +
+                    "function sendData() {" +
                     "var input = document.getElementById('inputField').value;" +
                     "var ws = new WebSocket('" + webSocketUrl + "');" +
                     "ws.onopen = function() {ws.send(input);};}" +

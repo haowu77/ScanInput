@@ -38,22 +38,22 @@ class MainActivity : ComponentActivity() {
 fun QRCodeScreen(modifier: Modifier = Modifier) {
     var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var receivedText by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    var qrCodeUrl by remember { mutableStateOf("") }
     val scanInputLibrary = remember { ScanInputLibrary.getInstance() }
 
     LaunchedEffect(Unit) {
         // Define ports
-        val webPort = 8080
-        val wsPort = 8081
+        val webPort = 9998
+        val wsPort = 9999
 
         // Start the server and generate the QR code
-        scanInputLibrary.startServer(context, webPort, wsPort) { input ->
+        scanInputLibrary.startServer(webPort, wsPort) { input ->
             receivedText = input
         }
 
         // Generate QR code URL
-        val qrCodeUrl = "http://${scanInputLibrary.getLocalIpAddress()}:$webPort"
-        val qrCode = scanInputLibrary.generateQrCode(context, qrCodeUrl)
+        qrCodeUrl = "http://${scanInputLibrary.getLocalIpAddress()}:$webPort"
+        val qrCode = scanInputLibrary.generateQrCode(qrCodeUrl)
         qrBitmap = qrCode
     }
 
@@ -77,6 +77,12 @@ fun QRCodeScreen(modifier: Modifier = Modifier) {
             Text(text = "Generating QR Code...")
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display IP address and QR code URL
+        Text(text = "Current IP Address: ${scanInputLibrary.getLocalIpAddress()}")
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "QR Code URL: $qrCodeUrl")
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(text = "获得输入： $receivedText")
