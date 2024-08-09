@@ -1,43 +1,36 @@
 package cool.wuhao.scaninputlib;
 
-import java.util.Map;
+import android.content.Context;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import fi.iki.elonen.NanoHTTPD;
 
 public class ScanInputWebServer extends NanoHTTPD {
 
-    public ScanInputWebServer(int port) {
+    private final Context context;
+
+    public ScanInputWebServer(Context context, int port) {
         super(port);
+        this.context = context;
     }
-
-    public ScanInputWebServer(String hostname, int port) {
-        super(hostname, port);
-    }
-
-//    @Override
-//    public Response serve(IHTTPSession session) {
-//        String html = "<html><body>" +
-//                "<p>Scan Input Test</p>" +
-//                "<input type='text' id='inputField' oninput='sendData()'>" +
-//                "<script>" +
-//                "function sendData() {" +
-//                "var input = document.getElementById('inputField').value;" +
-//                "var ws = new WebSocket('" + webSocketUrl + "');" +
-//                "ws.onopen = function() {ws.send(input);};}" +
-//                "</script></body></html>";
-//        return newFixedLengthResponse(html);
-//    }
-
 
     @Override
     public Response serve(IHTTPSession session) {
-        String msg = "<html><body><h1>Hello server</h1>\n";
-        Map<String, String> parms = session.getParms();
-        if (parms.get("username") == null) {
-            msg += "<form action='?' method='get'>\n  <p>Your name: <input type='text' name='username'></p>\n" + "</form>\n";
-        } else {
-            msg += "<p>Hello, " + parms.get("username") + "!</p>";
+        try {
+            int htmlRawId = R.raw.websocket_client;
+            InputStream inputStream = context.getResources().openRawResource(htmlRawId); // 读取assets目录下的HTML文件
+            byte[] fileContent = IOUtils.toByteArray(inputStream); // 使用Apache Commons IO库将输入流转换为字节数组
+            String htmlContent = new String(fileContent, StandardCharsets.UTF_8); // 转换为字符串
+            return newFixedLengthResponse(Response.Status.OK, MIME_HTML, htmlContent); // 返回HTML内容
+        } catch (IOException e) {
+            e.printStackTrace();
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error loading HTML file");
         }
-        return newFixedLengthResponse(msg + "</body></html>\n");
     }
+
 }

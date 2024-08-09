@@ -40,7 +40,8 @@ fun QRCodeScreen(modifier: Modifier = Modifier) {
     var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var receivedText by remember { mutableStateOf("") }
     var qrCodeUrl by remember { mutableStateOf("") }
-    val scanInputLibrary = remember { ScanInputLibrary.getInstance() }
+    val context = LocalContext.current
+    val scanInputLibrary = remember { ScanInputLibrary.getInstance(context) }
 
     LaunchedEffect(Unit) {
         // Define ports

@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.core) // ZXing library dependency
     implementation(libs.nanohttpd) // NanoHTTPD library dependency
     implementation(libs.nanohttpd.websocket) // NanoHTTPD WebSocket dependency
+    implementation(libs.java.websocket)
+    implementation(libs.commons.io)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

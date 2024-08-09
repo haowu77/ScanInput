@@ -1,6 +1,8 @@
 [versions]
 agp = "8.5.1"
+commonsIo = "2.13.0"
 core = "3.4.1"
+javaWebsocket = "1.5.2"
 nanohttpd = "2.3.1"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
@@ -15,7 +17,9 @@ material = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
+java-websocket = { module = "org.java-websocket:Java-WebSocket", version.ref = "javaWebsocket" }
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }
 nanohttpd-websocket = { module = "org.nanohttpd:nanohttpd-websocket", version.ref = "nanohttpd" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

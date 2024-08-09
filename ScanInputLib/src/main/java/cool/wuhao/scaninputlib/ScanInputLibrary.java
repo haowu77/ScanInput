@@ -2,6 +2,8 @@ package cool.wuhao.scaninputlib;
 
 import static cool.wuhao.scaninputlib.Util.getLocalIpAddress;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
@@ -17,18 +19,21 @@ import java.io.IOException;
 import fi.iki.elonen.NanoWSD;
 
 public class ScanInputLibrary {
+
     private static ScanInputLibrary instance;
-    private ScanInputWebSocketServer webSocketServer;
-    private ScanInputWebServer webServer;
     protected ScanInputCallback inputCallback; // Changed from private to protected
-    private String webSocketUrl;
+    private final Context context;
 
     // Factory method to get instance
-    public static ScanInputLibrary getInstance() {
+    public static ScanInputLibrary getInstance(Context context) {
         if (instance == null) {
-            instance = new ScanInputLibrary();
+            instance = new ScanInputLibrary(context);
         }
         return instance;
+    }
+
+    private ScanInputLibrary(Context context) {
+        this.context = context;
     }
 
     // Method to set the input callback
@@ -58,11 +63,8 @@ public class ScanInputLibrary {
 
     public void startServer(int webPort, int wsPort, ScanInputCallback callback) {
         this.inputCallback = callback;
-        webServer = new ScanInputWebServer(webPort);
-        webSocketServer = new ScanInputWebSocketServer(wsPort);
-
-        String ipAddress = getLocalIpAddress(); // 获取本地 IP 地址
-        webSocketUrl = "ws://" + ipAddress + ":" + wsPort;
+        ScanInputWebServer webServer = new ScanInputWebServer(context, webPort);
+        SimpleWebSocketServer webSocketServer = new SimpleWebSocketServer(wsPort);
 
         try {
             webServer.start();
@@ -71,17 +73,6 @@ public class ScanInputLibrary {
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to start servers");
-        }
-    }
-
-
-    // Method to stop the server
-    public void stopServer() {
-        if (webServer != null) {
-            webServer.stop();
-        }
-        if (webSocketServer != null) {
-            webSocketServer.stop();
         }
     }
 
