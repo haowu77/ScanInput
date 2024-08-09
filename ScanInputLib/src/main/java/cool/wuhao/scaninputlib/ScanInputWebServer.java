@@ -28,7 +28,6 @@ public class ScanInputWebServer extends NanoHTTPD {
             String htmlContent = new String(fileContent, StandardCharsets.UTF_8); // 转换为字符串
             return newFixedLengthResponse(Response.Status.OK, MIME_HTML, htmlContent); // 返回HTML内容
         } catch (IOException e) {
-            e.printStackTrace();
             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error loading HTML file");
         }
     }
