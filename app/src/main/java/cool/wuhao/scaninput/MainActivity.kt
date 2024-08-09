@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cool.wuhao.scaninput.ui.theme.ScanInputTheme
 import cool.wuhao.scaninputlib.ScanInputLibrary
+import cool.wuhao.scaninputlib.Util.getLocalIpAddress
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +53,7 @@ fun QRCodeScreen(modifier: Modifier = Modifier) {
         }
 
         // Generate QR code URL
-        qrCodeUrl = "http://${scanInputLibrary.getLocalIpAddress()}:$webPort"
+        qrCodeUrl = "http://${getLocalIpAddress()}:$webPort"
         val qrCode = scanInputLibrary.generateQrCode(qrCodeUrl)
         qrBitmap = qrCode
     }
@@ -80,7 +81,7 @@ fun QRCodeScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display IP address and QR code URL
-        Text(text = "Current IP Address: ${scanInputLibrary.getLocalIpAddress()}")
+        Text(text = "Current IP Address: ${getLocalIpAddress()}")
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "QR Code URL: $qrCodeUrl")
         Spacer(modifier = Modifier.height(16.dp))
