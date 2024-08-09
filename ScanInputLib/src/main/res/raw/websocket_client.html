@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0">
+        <title>WebSocket Chat Client</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 100vh;
+                background-color: #f0f0f0;
+            }
+
+            #messages {
+                flex-grow: 1;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                margin-bottom: 1em;
+            }
+
+            #inputMessage {
+                width: 80%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+
+            #sendButton {
+                padding: 10px 20px;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            #sendButton:hover {
+                background-color: #0056b3;
+            }
+
+            .chat-input {
+                display: flex;
+                align-items: center;
+                width: 90%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="messages"></div>
+
+        <div class="chat-input">
+            <input
+                    type="text"
+                    id="inputMessage"
+                    placeholder="Type your message here...">
+            <button id="sendButton">Send</button>
+        </div>
+
+        <script>
+            // 创建WebSocket对象
+            var socket = new WebSocket('ws://localhost:9998');
+
+            // 连接打开时触发
+            socket.addEventListener('open', function (event) {
+                console.log("Connection opened");
+            });
+
+            // 接收服务器消息时触发
+            socket.addEventListener('message', function (event) {
+                var messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML += '<p>' + event.data + '</p>';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+
+            // 连接关闭时触发
+            socket.addEventListener('close', function (event) {
+                console.log("Connection closed");
+            });
+
+            // 错误处理
+            socket.addEventListener('error', function (event) {
+                console.error("Error occurred:", event);
+            });
+
+            // 发送按钮点击事件
+            document.getElementById('sendButton').addEventListener('click', function () {
+                var input = document.getElementById('inputMessage');
+                if (input.value.trim() !== '') {
+                    socket.send(input.value);
+                    input.value = ''; // 清空输入框
+                }
+            });
+        </script>
+    </body>
+</html>
